@@ -171,6 +171,20 @@ Then open:
 - Frontend: http://localhost:5173
 - Backend API docs: http://localhost:8000/docs
 
+### Smoke tests with curl
+
+After `docker compose up --build` is running in another terminal:
+
+```bash
+./scripts/smoke-test.sh
+```
+
+What it verifies:
+
+- `GET http://localhost:8000/` returns a backend health payload
+- `GET http://localhost:8000/docs` is reachable
+- `GET http://localhost:5173` serves HTML from the frontend
+
 ### Stop services
 
 ```bash
