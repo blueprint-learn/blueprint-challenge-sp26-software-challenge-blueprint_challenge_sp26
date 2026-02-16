@@ -150,38 +150,35 @@ Expected endpoints include:
 - POST /referrals  
 - GET /resources/{id}/referrals  
 
----
+## Starter Implementation Included
 
-# 🗄️ Database Requirements (PostgreSQL)
+This repository now includes a starter full-stack implementation with:
 
-## Context  
+- `frontend/`: React + Vite UI for resource list/search/filter, resource creation, resource detail, and referral creation
+- `backend/`: FastAPI REST API with PostgreSQL persistence for resources and referrals
+- `docker-compose.yml`: PostgreSQL + backend + frontend services
 
-CommunityBridge needs structured, relational data so that referrals can be linked to specific resources and queried reliably.
+### Run with Docker
 
-## Requirements  
+From the repository root:
 
-The database must include at least two related tables:
+```bash
+docker compose up --build
+```
 
-### resources
-- id  
-- name  
-- category  
-- description  
-- address  
-- email  
-- phone  
+Then open:
 
-### referrals
-- id  
-- family_name  
-- resource_id (foreign key to resources)  
-- date  
-- notes  
+- Frontend: http://localhost:5173
+- Backend API docs: http://localhost:8000/docs
 
-The relationship between resources and referrals must be enforced in the schema.
+### Stop services
 
----
+```bash
+docker compose down
+```
 
-# 📦 Deliverable  
+To also remove database data volume:
 
-A working full-stack application implementing the features above, with frontend, backend, and database connected.
+```bash
+docker compose down -v
+```
