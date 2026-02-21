@@ -185,6 +185,40 @@ What it verifies:
 - `GET http://localhost:8000/docs` is reachable
 - `GET http://localhost:5173` serves HTML from the frontend
 
+### Backend tests (pytest)
+
+From the repository root, install backend test dependencies:
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+Run all backend tests:
+
+```bash
+cd ..
+python3 -m pytest -q backend/tests
+```
+
+### Frontend tests (Jest)
+
+From the repository root, install frontend dependencies:
+
+```bash
+cd frontend
+npm ci
+```
+
+Run all frontend tests:
+
+```bash
+npm test -- --runInBand
+```
+
 ### Stop services
 
 ```bash

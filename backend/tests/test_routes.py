@@ -2,13 +2,35 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from backend.app import app
+from backend.database import Base, get_db
 
 
 @pytest.fixture
 def client() -> TestClient:
-    return TestClient(app)
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    testing_session_local = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    def override_get_db() -> Session:
+        db = testing_session_local()
+        try:
+            yield db
+        finally:
+            db.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -79,12 +101,6 @@ def test_create_referral_rejects_missing_family_name(client: TestClient) -> None
     assert response.status_code == 422
 
 
-# Contract tests for the expected behavior once routes are implemented.
-# They are xfail for now because the starter route handlers intentionally return 501.
-route_todo = pytest.mark.xfail(reason="Route logic not implemented yet", strict=False)
-
-
-@route_todo
 def test_create_resource_success(
     client: TestClient, valid_resource_payload: dict[str, str]
 ) -> None:
@@ -97,7 +113,6 @@ def test_create_resource_success(
     assert body["category"] == valid_resource_payload["category"]
 
 
-@route_todo
 def test_list_resources_supports_search_and_category_filter(
     client: TestClient, valid_resource_payload: dict[str, str]
 ) -> None:
@@ -124,14 +139,12 @@ def test_list_resources_supports_search_and_category_filter(
     assert body[0]["name"] == "Career Launch Center"
 
 
-@route_todo
 def test_get_resource_returns_404_for_missing_resource(client: TestClient) -> None:
     response = client.get("/resources/999999")
 
     assert response.status_code == 404
 
 
-@route_todo
 def test_create_referral_success(
     client: TestClient, valid_resource_payload: dict[str, str]
 ) -> None:
@@ -154,7 +167,6 @@ def test_create_referral_success(
     assert body["family_name"] == "Nguyen Family"
 
 
-@route_todo
 def test_create_referral_returns_404_for_missing_resource(client: TestClient) -> None:
     referral_payload = {
         "family_name": "Nguyen Family",
@@ -168,7 +180,6 @@ def test_create_referral_returns_404_for_missing_resource(client: TestClient) ->
     assert response.status_code == 404
 
 
-@route_todo
 def test_list_resource_referrals_returns_only_requested_resource(
     client: TestClient, valid_resource_payload: dict[str, str]
 ) -> None:
@@ -213,7 +224,6 @@ def test_list_resource_referrals_returns_only_requested_resource(
     assert body[0]["family_name"] == "Family A"
 
 
-@route_todo
 def test_list_resource_referrals_returns_404_for_missing_resource(
     client: TestClient,
 ) -> None:
