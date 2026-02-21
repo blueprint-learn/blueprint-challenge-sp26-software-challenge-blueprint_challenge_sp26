@@ -14,6 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Run Docker smoke tests
+        run: |
+          docker compose up -d --build
+          ./scripts/smoke-test.sh
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -37,12 +42,6 @@ jobs:
         run: |
           npm install
           npm test -- --runInBand
-
-      - name: Run Docker smoke tests
-        run: |
-          docker compose up -d --build
-          ./scripts/smoke-test.sh
-
       - name: Shutdown Docker services
         if: always()
         run: docker compose down -v
