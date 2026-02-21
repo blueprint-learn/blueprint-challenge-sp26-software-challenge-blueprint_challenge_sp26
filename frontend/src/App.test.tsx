@@ -22,7 +22,7 @@ const createReferralMock = api.createReferral as jest.MockedFunction<typeof api.
 
 describe('App challenge acceptance tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    jest.resetAllMocks()
   })
 
   test('loads and displays resources, then applies search and category filters', async () => {
@@ -87,7 +87,7 @@ describe('App challenge acceptance tests', () => {
       expect(listResourcesMock).toHaveBeenCalledWith({ q: 'food', category: 'All' })
     })
 
-    await user.selectOptions(screen.getByLabelText(/category/i), 'Healthcare')
+    await user.selectOptions(screen.getByLabelText(/category filter/i), 'Healthcare')
 
     await waitFor(() => {
       expect(listResourcesMock).toHaveBeenLastCalledWith({ q: 'food', category: 'Healthcare' })
